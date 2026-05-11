@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
@@ -22,22 +22,22 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "OneClick3D — The easiest way to turn images and text into 3D",
-  description: "Turn any SVG into interactive 3D objects. Animate and export as 4K image or video. 100% free, no account or subscription needed.",
-  metadataBase: new URL("https://3dsvg.design"),
+  title: "OneClick3D by Caparison Lab — Turn anything into 3D",
+  description: "Instantly turn images, SVG, and text into interactive 3D objects with a single click. High-quality rendering and export for professionals.",
+  metadataBase: new URL("https://oneclick3d.caparisonlab.com"),
   openGraph: {
-    title: "OneClick3D — The easiest way to turn images and text into 3D",
-    description: "Turn any SVG into interactive 3D objects. Animate and export as 4K image or video. 100% free, no account or subscription needed.",
-    url: "https://3dsvg.design",
+    title: "OneClick3D by Caparison Lab",
+    description: "Instantly turn images, SVG, and text into interactive 3D objects with a single click.",
+    url: "https://oneclick3d.caparisonlab.com",
     siteName: "OneClick3D",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "OneClick3D — The easiest way to turn images and text into 3D",
-    description: "Turn any SVG into interactive 3D objects. Animate and export as 4K image or video. 100% free, no account or subscription needed.",
+    title: "OneClick3D by Caparison Lab",
+    description: "Instantly turn images, SVG, and text into interactive 3D objects with a single click.",
   },
-  keywords: ["3d", "svg", "react", "three.js", "embed", "webgl", "pixel art", "text to 3d", "svg to 3d", "free"],
+  keywords: ["3d", "svg", "caparison lab", "three.js", "embed", "webgl", "text to 3d", "svg to 3d"],
 };
 
 export default function RootLayout({
@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${outfit.variable} ${geistMono.variable} antialiased`}
       >
         <TooltipProvider delayDuration={700}>{children}</TooltipProvider>
         <Analytics />

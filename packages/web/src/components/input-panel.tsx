@@ -153,9 +153,9 @@ export function InputPanel({
   };
 
   return (
-    <div ref={panelRef} className="flex items-start gap-2 pointer-events-none">
-      {/* Vertical toolbar */}
-      <div className="flex flex-col gap-1 rounded-xl bg-card/70 backdrop-blur-xl border border-white/[0.06] shadow-[0_8px_32px_oklch(0_0_0/0.4)] p-1.5 pointer-events-auto">
+    <div ref={panelRef} className="flex flex-col items-center gap-3 pointer-events-none">
+      {/* Horizontal toolbar dock */}
+      <div className="flex flex-row gap-2 rounded-full bg-card/80 backdrop-blur-2xl border border-white/[0.08] shadow-[0_16px_40px_oklch(0_0_0/0.6)] p-2 pointer-events-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isSelected = inputTab === tab.value;
@@ -178,17 +178,17 @@ export function InputPanel({
                   <Icon className="h-[18px] w-[18px]" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">{tab.label}</TooltipContent>
+              <TooltipContent side="top" className="mb-2">{tab.label}</TooltipContent>
             </Tooltip>
           );
         })}
       </div>
 
-      {/* Expandable content panel */}
+      {/* Expandable content panel above the dock */}
       <motion.div
-        animate={expanded ? { opacity: 1, x: 0, pointerEvents: "auto" as const } : { opacity: 0, x: -8, pointerEvents: "none" as const }}
-        transition={{ duration: 0.15 }}
-        className="w-80 rounded-xl bg-card/70 backdrop-blur-xl border border-white/[0.06] shadow-[0_8px_32px_oklch(0_0_0/0.4)] p-3"
+        animate={expanded ? { opacity: 1, y: 0, pointerEvents: "auto" as const } : { opacity: 0, y: 20, pointerEvents: "none" as const }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="w-80 rounded-2xl bg-card/80 backdrop-blur-2xl border border-white/[0.08] shadow-[0_16px_40px_oklch(0_0_0/0.6)] p-4 order-first"
       >
             <div className={inputTab === "draw" ? "" : "hidden"}>
               <PixelEditor onSvgChange={onPixelSvgChange} />
