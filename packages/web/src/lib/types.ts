@@ -6,8 +6,9 @@
  */
 
 // Re-export engine types so existing imports from "@/lib/types" still work
+import { materialPresets } from "3dsvg";
 export type { MaterialSettings, MaterialPreset } from "3dsvg";
-export { materialPresets } from "3dsvg";
+export { materialPresets };
 
 export const defaultMaterialSettings = {
   preset: "default" as const,
