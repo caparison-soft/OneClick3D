@@ -355,6 +355,7 @@ export default function Home() {
             initialFont={currentFont}
             droppedFile={droppedFile}
           />
+        </motion.div>
       </div>
 
       {/* Top-right: embed + gear buttons */}
