@@ -125,11 +125,10 @@ export default function Home() {
       setAuthToken(session.access_token);
       
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_MAIN_API_URL || 'http://localhost:3000'}/api/v1/credits`, {
-          headers: { 
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_APP_API_KEY}`,
-            'X-User-Token': session.access_token 
-          }
+        const res = await fetch('/api/credits/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userToken: session.access_token }),
         });
         const data = await res.json();
         
@@ -138,7 +137,7 @@ export default function Home() {
           return;
         }
 
-        const isSubscribed = data.subscriptionTier !== 'FREE' && (!data.subscriptionExpiry || new Date(data.subscriptionExpiry) > new Date());
+        const isSubscribed = data.tier !== 'FREE';
         
         if (!isSubscribed) {
           setAuthError("OneClick3D requires an active Pro Subscription. Please upgrade your plan in Caparison Lab.");
@@ -168,13 +167,11 @@ export default function Home() {
     
     setIsExporting(true);
     try {
-      // Deduct 2 credits
-      const res = await fetch(`${process.env.NEXT_PUBLIC_MAIN_API_URL || 'http://localhost:3000'}/api/v1/use`, {
+      // Deduct 2 credits via server-side proxy
+      const res = await fetch('/api/credits/use', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ apiKey: process.env.NEXT_PUBLIC_APP_API_KEY, userToken: authToken, creditCost: 2 })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userToken: authToken, creditCost: 2 })
       });
 
       if (!res.ok) {
@@ -542,10 +539,10 @@ export default function Home() {
           if (!authToken || isExporting) return false;
           setIsExporting(true);
           try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_MAIN_API_URL || 'http://localhost:3000'}/api/v1/use`, {
+            const res = await fetch('/api/credits/use', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ apiKey: process.env.NEXT_PUBLIC_APP_API_KEY, userToken: authToken, creditCost: 2 })
+              body: JSON.stringify({ userToken: authToken, creditCost: 2 })
             });
             if (!res.ok) {
               const data = await res.json();
