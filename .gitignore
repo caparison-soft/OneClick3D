@@ -43,4 +43,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 packages/web/.next/
-packages/engine/dist/
+# packages/engine/dist/ - included in git for Vercel deployment
