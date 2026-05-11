@@ -12,11 +12,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "potrace": "^2.1.8"
-  },
-  "devDependencies": {
-    "@types/potrace": "^2.1.5"
   }
 }
