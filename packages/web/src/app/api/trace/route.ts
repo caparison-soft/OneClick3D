@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       potrace.trace(buffer, (err: any, svg: string) => {
         if (err) {
           console.error(err);

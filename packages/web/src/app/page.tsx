@@ -30,7 +30,6 @@ import { Freedback } from "@/components/freedback";
 import {
   defaultTextureSettings,
   defaultMaterialSettings,
-  defaultMaterialSettings,
   type TextureSettings,
   type MaterialSettings,
 } from "@/lib/types";
