@@ -72,8 +72,8 @@ export default function Home() {
   const [inputTab, setInputTab] = useState("draw");
   const [depth, setDepth] = useState(1);
   const [smoothness, setSmoothness] = useState(0.6);
-  const [color, setColor] = useState("#4f46e5");
-  const [bgColor, setBgColor] = useState("#6961ff");
+  const [color, setColor] = useState("#06b6d4");
+  const [bgColor, setBgColor] = useState("#0d9488");
   const [textureUrl, setTextureUrl] = useState<string | null>(null);
   const [textureSettings, setTextureSettings] =
     useState<TextureSettings>(defaultTextureSettings);
@@ -333,13 +333,13 @@ export default function Home() {
       />
 
       {/* Layer 2: UI */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center p-5">
-        {/* Bottom dock + content panel */}
+      <div className="pointer-events-none absolute inset-0 z-10 flex flex-col p-5">
+        {/* Left toolbar + content panel */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.25, delay: 0.2 }}
-          className={`pointer-events-none relative ${topPanel === "toolbar" ? "z-30" : "z-10"}`}
+          className={`pointer-events-none relative ${topPanel === "toolbar" ? "z-20" : "z-[8]"}`}
         >
           <InputPanel
             inputTab={inputTab}
@@ -356,6 +356,7 @@ export default function Home() {
             droppedFile={droppedFile}
           />
         </motion.div>
+
       </div>
 
       {/* Top-right: embed + gear buttons */}
@@ -416,15 +417,15 @@ export default function Home() {
         </Tooltip>
       </div>
 
-      {/* Left-side settings panel */}
+      {/* Right-side settings panel */}
       <motion.div
-        initial={{ opacity: 0, x: -20, pointerEvents: "none" as const }}
+        initial={{ opacity: 0, x: 20, pointerEvents: "none" as const }}
         animate={controlsOpen
           ? { opacity: 1, x: 0, pointerEvents: "auto" as const }
-          : { opacity: 0, x: -20, pointerEvents: "none" as const }
+          : { opacity: 0, x: 20, pointerEvents: "none" as const }
         }
         transition={{ duration: 0.2 }}
-        className={`absolute top-5 left-5 bottom-5 max-md:right-5 ${topPanel === "settings" ? "z-[60]" : "z-[8]"}`}
+        className={`absolute top-5 right-5 bottom-5 max-md:left-5 ${topPanel === "settings" ? "z-[60]" : "z-[8]"}`}
       >
             <ControlsPanel
               depth={depth}
@@ -476,13 +477,11 @@ export default function Home() {
           animate={{ opacity: 1 }}
           className="fixed inset-0 z-[100] flex items-center justify-center"
         >
-          <div className="absolute inset-4 rounded-3xl border-2 border-dashed border-primary/40 bg-card/60 backdrop-blur-md flex flex-col items-center justify-center gap-6 shadow-2xl">
-            <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center animate-pulse">
-              <svg className="h-12 w-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-              </svg>
-            </div>
-            <span className="text-2xl font-semibold tracking-tight text-white/80">Drop your file to create magic</span>
+          <div className="absolute inset-2 rounded-2xl border-2 border-dashed border-white/20 bg-card/40 flex flex-col items-center justify-center gap-4">
+            <svg className="h-16 w-16 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <span className="text-xl font-medium text-white/60">Drop SVG file</span>
           </div>
         </motion.div>
       )}
