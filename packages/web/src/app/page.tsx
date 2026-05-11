@@ -126,7 +126,10 @@ export default function Home() {
       
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_MAIN_API_URL || 'http://localhost:3000'}/api/v1/credits`, {
-          headers: { 'X-User-Token': session.access_token }
+          headers: { 
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_APP_API_KEY}`,
+            'X-User-Token': session.access_token 
+          }
         });
         const data = await res.json();
         
@@ -170,9 +173,8 @@ export default function Home() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-User-Token': authToken
         },
-        body: JSON.stringify({ appId: 'oneclick3d', credits: 2 }) // Need to pass the actual appId or a special flag. For now, sending credits=2 or the app logic handles it.
+        body: JSON.stringify({ apiKey: process.env.NEXT_PUBLIC_APP_API_KEY, userToken: authToken, creditCost: 2 })
       });
 
       if (!res.ok) {
@@ -542,8 +544,8 @@ export default function Home() {
           try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_MAIN_API_URL || 'http://localhost:3000'}/api/v1/use`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'X-User-Token': authToken },
-              body: JSON.stringify({ appId: 'oneclick3d', credits: 2 })
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ apiKey: process.env.NEXT_PUBLIC_APP_API_KEY, userToken: authToken, creditCost: 2 })
             });
             if (!res.ok) {
               const data = await res.json();
