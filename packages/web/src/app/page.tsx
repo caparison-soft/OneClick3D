@@ -12,7 +12,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Settings2, CodeXml, MessageCircle, Download } from "lucide-react";
+import { Settings2, CodeXml, MessageCircle, Download, LogOut, User, Coins } from "lucide-react";
 import { defaultLightSettings, type LightSettings, type Export3DFormat } from "@/components/svg-to-3d-canvas";
 import { AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -111,6 +111,8 @@ export default function Home() {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [userCredits, setUserCredits] = useState<number | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -118,11 +120,13 @@ export default function Home() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        setAuthError("You must be logged in to Caparison Lab to use OneClick3D.");
+        // Not logged in — redirect to Caparison Lab login
+        window.location.href = (process.env.NEXT_PUBLIC_MAIN_API_URL || 'https://www.caparisonlab.com') + '/login';
         return;
       }
 
       setAuthToken(session.access_token);
+      setUserEmail(session.user?.email || null);
       
       try {
         const res = await fetch('/api/credits/check', {
@@ -133,10 +137,15 @@ export default function Home() {
         const data = await res.json();
         
         if (!res.ok) {
+          if (data.error === 'INVALID_USER_TOKEN') {
+            window.location.href = (process.env.NEXT_PUBLIC_MAIN_API_URL || 'https://www.caparisonlab.com') + '/login';
+            return;
+          }
           setAuthError(data.error || "Failed to verify account.");
           return;
         }
 
+        setUserCredits(data.credits ?? 0);
         const isSubscribed = data.tier !== 'FREE';
         
         if (!isSubscribed) {
@@ -148,6 +157,12 @@ export default function Home() {
     };
 
     checkAuth();
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = (process.env.NEXT_PUBLIC_MAIN_API_URL || 'https://www.caparisonlab.com') + '/login';
   }, []);
 
   const registerCapture = useCallback((fn: (resolution: number, withBackground: boolean, onCapture: (dataUrl: string) => void, aspectRatio?: number | null) => void) => {
@@ -174,15 +189,32 @@ export default function Home() {
         body: JSON.stringify({ userToken: authToken, creditCost: 2 })
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
+        if (data.error === 'INVALID_USER_TOKEN') {
+          window.location.href = (process.env.NEXT_PUBLIC_MAIN_API_URL || 'https://www.caparisonlab.com') + '/login';
+          return;
+        }
         alert(`Export failed: ${data.error || 'Insufficient credits. Exporting costs 2 credits.'}`);
         setIsExporting(false);
         return;
       }
       
+      // Update credits display
+      setUserCredits(prev => prev !== null ? prev - 2 : null);
+      
       const base = inputTab === "text" && currentText ? currentText.replace(/[^a-z0-9]+/gi, "-").toLowerCase() || "3dsvg" : "3dsvg";
       export3DFnRef.current?.(format, base);
+
+      // Mark generation as COMPLETED (fire and forget)
+      if (data.generationId) {
+        fetch('/api/credits/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ generationId: data.generationId, status: 'COMPLETED' }),
+        }).catch(() => {}); // non-blocking
+      }
     } catch (err) {
       alert("Network error. Please try again.");
     } finally {
@@ -360,7 +392,7 @@ export default function Home() {
       </div>
 
       {/* Top-right: embed + gear buttons */}
-      <div className={`pointer-events-auto absolute top-5 right-5 flex gap-2 ${topPanel === "settings" ? "z-[60]" : "z-[8]"}`}>
+      <div className={`pointer-events-auto absolute top-16 right-5 flex gap-2 ${topPanel === "settings" ? "z-[60]" : "z-[8]"}`}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -416,6 +448,43 @@ export default function Home() {
           <TooltipContent side="bottom">Settings</TooltipContent>
         </Tooltip>
       </div>
+
+      {/* User info bar — top right */}
+      {authToken && (
+        <div className="absolute top-5 right-5 z-[55] pointer-events-auto flex items-center gap-2">
+          {/* Credits badge */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/70 backdrop-blur-xl border border-white/[0.06] shadow-[0_8px_32px_oklch(0_0_0/0.4)] text-sm font-medium">
+            <Coins className="h-3.5 w-3.5 text-yellow-400" />
+            <span className="text-yellow-300">{userCredits ?? '...'}</span>
+            <span className="text-muted-foreground text-xs">credits</span>
+          </div>
+          {/* Profile avatar */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 border border-white/10 flex items-center justify-center text-xs font-bold text-white shadow-lg cursor-default">
+                {userEmail ? userEmail[0].toUpperCase() : <User className="h-4 w-4" />}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{userEmail || 'User'}</TooltipContent>
+          </Tooltip>
+          {/* Logout */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="rounded-full bg-card/70 backdrop-blur-xl border border-white/[0.06] shadow-[0_8px_32px_oklch(0_0_0/0.4)] h-9 w-9"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Logout</TooltipContent>
+          </Tooltip>
+        </div>
+      )}
+
+
 
       {/* Right-side settings panel */}
       <motion.div
@@ -544,11 +613,24 @@ export default function Home() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ userToken: authToken, creditCost: 2 })
             });
+            const data = await res.json();
             if (!res.ok) {
-              const data = await res.json();
+              if (data.error === 'INVALID_USER_TOKEN') {
+                window.location.href = (process.env.NEXT_PUBLIC_MAIN_API_URL || 'https://www.caparisonlab.com') + '/login';
+                return false;
+              }
               alert(`Export failed: ${data.error || 'Insufficient credits.'}`);
               setIsExporting(false);
               return false;
+            }
+            setUserCredits(prev => prev !== null ? prev - 2 : null);
+            // Mark generation as COMPLETED (fire and forget)
+            if (data.generationId) {
+              fetch('/api/credits/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ generationId: data.generationId, status: 'COMPLETED' }),
+              }).catch(() => {});
             }
             return true;
           } catch (err) {
