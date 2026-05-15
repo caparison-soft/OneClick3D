@@ -12,7 +12,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Settings2, CodeXml, MessageCircle, Download, LogOut, User, Coins } from "lucide-react";
+import { Settings2, CodeXml, MessageCircle, Download, LogOut, User, Coins, LayoutDashboard } from "lucide-react";
 import { defaultLightSettings, type LightSettings, type Export3DFormat } from "@/components/svg-to-3d-canvas";
 import { AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -159,10 +159,10 @@ export default function Home() {
     checkAuth();
   }, []);
 
-  const handleLogout = useCallback(async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.href = (process.env.NEXT_PUBLIC_MAIN_API_URL || 'https://www.caparisonlab.com') + '/login';
+  const handleGoToDashboard = useCallback(() => {
+    if (confirm("Do you want to go to the dashboard? This app will be closed.")) {
+      window.location.href = (process.env.NEXT_PUBLIC_MAIN_API_URL || 'https://www.caparisonlab.com') + '/dashboard';
+    }
   }, []);
 
   const registerCapture = useCallback((fn: (resolution: number, withBackground: boolean, onCapture: (dataUrl: string) => void, aspectRatio?: number | null) => void) => {
@@ -467,19 +467,19 @@ export default function Home() {
             </TooltipTrigger>
             <TooltipContent side="bottom">{userEmail || 'User'}</TooltipContent>
           </Tooltip>
-          {/* Logout */}
+          {/* Dashboard */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={handleLogout}
+                onClick={handleGoToDashboard}
                 className="rounded-full bg-card/70 backdrop-blur-xl border border-white/[0.06] shadow-[0_8px_32px_oklch(0_0_0/0.4)] h-9 w-9"
               >
-                <LogOut className="h-4 w-4" />
+                <LayoutDashboard className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">Logout</TooltipContent>
+            <TooltipContent side="bottom">Go to Dashboard</TooltipContent>
           </Tooltip>
         </div>
       )}
